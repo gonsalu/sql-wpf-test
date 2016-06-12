@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Windows.Threading;
+using System.Threading;
 
 namespace WpfTest {
 	/// <summary>
@@ -34,6 +35,7 @@ namespace WpfTest {
 
 		private async void connectBtn_Click(object sender, RoutedEventArgs e) {
 			_connectBtn.IsEnabled = false;
+			_spinner.Visibility = Visibility.Visible;
 
 			var serverName = _serverName.Text;
 			var connBuilder = new SqlConnectionStringBuilder();
@@ -44,22 +46,26 @@ namespace WpfTest {
 
 			Trace.WriteLine($"Trying connection \"{connStr}\"");
 
-			var conn = new SqlConnection(connStr);
-			try {
-				await conn.OpenAsync();
-				await Application.Current.Dispatcher.BeginInvoke(
-					DispatcherPriority.Normal, new Action(() => {
-						_cancelBtn.IsEnabled = false;
-						_connectBtn.IsEnabled = false;
-				  }));
-				_validConn.SetResult(conn);
-				Trace.WriteLine($"Successfully connected to \"{connStr}\"");
-			} catch (Exception ex) {
-				MessageBox.Show(ex.Message, "Connection Error", 
-					MessageBoxButton.OK, 
-					MessageBoxImage.Error, 
-					MessageBoxResult.OK);
-			}
+			new Thread(() => {
+				Task.Run(() => {
+					var conn = new SqlConnection(connStr);
+					try {
+						conn.Open();
+						Application.Current.Dispatcher.BeginInvoke(
+							DispatcherPriority.Normal, new Action(() => {
+								_cancelBtn.IsEnabled = false;
+								_connectBtn.IsEnabled = false;
+							}));
+						_validConn.SetResult(conn);
+						Trace.WriteLine($"Successfully connected to \"{connStr}\"");
+					} catch (Exception ex) {
+						MessageBox.Show(ex.Message, "Connection Error",
+							MessageBoxButton.OK,
+							MessageBoxImage.Error,
+							MessageBoxResult.OK);
+					}
+				});
+			}).Start();
 		}
 
 		private void cancelBtn_Click(object sender, RoutedEventArgs e) {

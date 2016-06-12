@@ -25,7 +25,7 @@
         </StatusBarItem>
         <!--<Separator Grid.Column="1" />-->
         <StatusBarItem Grid.Column="2">
-            <ProgressBar Name="_progressBar" Visibility="Visible" IsIndeterminate="True" Value="50" Width="90" Height="16" />
+            <ProgressBar Name="_progressBar" Visibility="Hidden" IsIndeterminate="True" Value="50" Width="90" Height="16" />
         </StatusBarItem>
         <Separator Grid.Column="3" />
         <StatusBarItem Grid.Column="4">

@@ -27,6 +27,7 @@ namespace WpfTest
 			InitializeComponent();
 			_connectionChooser
 				.GetValidConnTask()
+				//.ConfigureAwait(false)
 				.ContinueWith(StartConnView);
 		}
 

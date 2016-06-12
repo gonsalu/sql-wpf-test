@@ -16,6 +16,9 @@ using static WpfTest.UIHelpers;
 using ICSharpCode.AvalonEdit.AddIn;
 using System.ComponentModel.Design;
 using System.Threading;
+using System.Windows.Data;
+using System.Dynamic;
+using System.Diagnostics;
 
 namespace WpfTest {
 	public class TabContentView : UserControl {
@@ -51,7 +54,7 @@ namespace WpfTest {
 			var subGrid = new Grid();
 			subGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 			subGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(5, GridUnitType.Pixel) });
-			subGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+			subGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
 			_avEdit = new TextEditor() {
 				FontFamily = new FontFamily("Consalas"),
@@ -72,9 +75,11 @@ namespace WpfTest {
 			_panel = new DockPanel();
 			_panel.SetValue(Grid.RowProperty, 2);
 			_dataGrid = new DataGrid {
+				//MaxHeight = 500,
 				Style = COLLAPSE_STYLE,
 				EnableColumnVirtualization = true,
-				EnableRowVirtualization = true
+				EnableRowVirtualization = true, 
+				AutoGenerateColumns = false
 			};
 			_dataGrid.IsReadOnly = true;
 			_panel.Children.Add(_dataGrid);
@@ -82,7 +87,6 @@ namespace WpfTest {
 			_errorLabel = new Label();
 			_errorLabel.Style = COLLAPSE_STYLE;
 			_panel.Children.Add(_errorLabel);
-
 			subGrid.Children.Add(_panel);
 			grid.Children.Add(subGrid);
 
@@ -158,26 +162,62 @@ namespace WpfTest {
 					conn.Open();
 					cmd.CommandText = queryTxt;
 					var rdr = cmd.ExecuteReader();
-					var dt = new DataTable();
-					var fieldCount = rdr.FieldCount;
-					for (int i = 0; i < fieldCount; i++) {
-						var colname = rdr.GetName(i);
-						dt.Columns.Add(colname);
-					}
+					
 
+					var buffer = new List<ExpandoObject>(500);
 					do {
+						var fieldCount = rdr.FieldCount;
+
+						this.Dispatcher.Invoke(DispatcherPriority.DataBind, new Action(() => {
+							_dataGrid.Items.Clear();
+							_dataGrid.Columns.Clear();
+							var dgCols = new DataGridTextColumn[fieldCount];
+							for (int i = 0; i < fieldCount; i++) {
+								var colname = rdr.GetName(i);
+								if (String.IsNullOrEmpty(colname)) {
+									colname = "Column " + (i + 1).ToString();
+								}
+								dgCols[i] = new DataGridTextColumn {
+									Binding = new Binding(i.ToString()),
+									Header = colname
+								};
+							}
+
+							foreach (var col in dgCols) {
+								_dataGrid.Columns.Add(col);
+							}
+							_haveResults = true;
+							UpdateGridVis();
+						}));
+
+						var swSync = Stopwatch.StartNew();
 						while (rdr.Read()) {
+							_haveResults = true;
 							var vals = new object[fieldCount];
 							rdr.GetValues(vals);
-							dt.Rows.Add(vals);
+
+							var newRow = new ExpandoObject(); // PERF - Should be more like this: http://stackoverflow.com/a/8890435
+							for (int i = 0; i < fieldCount; i++) {
+								((IDictionary<string, object>)newRow)[i.ToString()] = vals[i];
+							}
+							buffer.Add(newRow);
+
+							if (buffer.Count == buffer.Capacity || swSync.ElapsedMilliseconds > 100) {
+								Dispatcher.Invoke(DispatcherPriority.DataBind, new Action(() => {
+									foreach (var r in buffer) { _dataGrid.Items.Add(r); }
+								}));
+								buffer.Clear();
+								swSync.Restart();
+							}
+						}
+
+						if (buffer.Count > 0) {
+							Dispatcher.Invoke(DispatcherPriority.DataBind, new Action(() => {
+								foreach (var row in buffer) { _dataGrid.Items.Add(row); }
+							}));
+							buffer.Clear();
 						}
 					} while (rdr.NextResult());
-
-					Dispatcher.BeginInvoke(DispatcherPriority.DataBind, new Action(() => {
-						_dataGrid.ItemsSource = dt.DefaultView;
-						_haveResults = dt.Rows.Count > 0;
-						UpdateGridVis();
-					}));
 				} catch (SqlException ex) {
 					Dispatcher.BeginInvoke(DispatcherPriority.DataBind, new Action(() => {
 						UpdateErrorMarkers(ex);
