@@ -1,0 +1,12 @@
+﻿<Application x:Class="WpfTest.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WpfTest"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!--http://stackoverflow.com/questions/5183801/black-background-for-xaml-editor-->
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="Background" Value="White" />
+        </Style>
+    </Application.Resources>
+</Application>
