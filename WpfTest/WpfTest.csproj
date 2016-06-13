@@ -63,8 +63,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DataItem.cs" />
-    <Compile Include="DataItem2.cs" />
     <Compile Include="External\TextMarking.cs" />
     <Compile Include="TabContentView.cs" />
     <Compile Include="UIHelpers.cs" />
