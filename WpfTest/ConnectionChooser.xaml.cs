@@ -46,26 +46,24 @@ namespace WpfTest {
 
 			Trace.WriteLine($"Trying connection \"{connStr}\"");
 
-			new Thread(() => {
-				Task.Run(() => {
-					var conn = new SqlConnection(connStr);
-					try {
-						conn.Open();
-						Application.Current.Dispatcher.BeginInvoke(
-							DispatcherPriority.Normal, new Action(() => {
-								_cancelBtn.IsEnabled = false;
-								_connectBtn.IsEnabled = false;
-							}));
-						_validConn.SetResult(conn);
-						Trace.WriteLine($"Successfully connected to \"{connStr}\"");
-					} catch (Exception ex) {
-						MessageBox.Show(ex.Message, "Connection Error",
-							MessageBoxButton.OK,
-							MessageBoxImage.Error,
-							MessageBoxResult.OK);
-					}
-				});
-			}).Start();
+			await Task.Run(() => {
+				var conn = new SqlConnection(connStr);
+				try {
+					conn.Open();
+					Application.Current.Dispatcher.BeginInvoke(
+						DispatcherPriority.Normal, new Action(() => {
+							_cancelBtn.IsEnabled = false;
+							_connectBtn.IsEnabled = false;
+						}));
+					_validConn.SetResult(conn);
+					Trace.WriteLine($"Successfully connected to \"{connStr}\"");
+				} catch (Exception ex) {
+					MessageBox.Show(ex.Message, "Connection Error",
+						MessageBoxButton.OK,
+						MessageBoxImage.Error,
+						MessageBoxResult.OK);
+				}
+			});
 		}
 
 		private void cancelBtn_Click(object sender, RoutedEventArgs e) {
