@@ -27,24 +27,16 @@ namespace WpfTest
 			InitializeComponent();
 			_connectionChooser
 				.GetValidConnTask()
-				//.ConfigureAwait(false)
-				.ContinueWith(StartConnView);
+				.ContinueWith(StartConnView, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
 		void StartConnView(Task<SqlConnection> getConn) {
 			var conn = getConn.Result;
 
-			Dispatcher.BeginInvoke(
-					DispatcherPriority.Normal, 
-					new Action(() => {
-						var dockPanel = new DockPanel();
-						
-						var control = new MainControl(conn);
-						dockPanel.Children.Add(control);
-						this.Content = dockPanel;
-
-						//_content.Children.Add(control);
-					}));
+			var dockPanel = new DockPanel();
+			var control = new MainControl(conn);
+			dockPanel.Children.Add(control);
+			this.Content = dockPanel;
 		}
 	}
 }
