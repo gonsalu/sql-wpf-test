@@ -64,6 +64,7 @@ namespace WpfTest {
 				VerticalScrollBarVisibility = ScrollBarVisibility.Auto
 			};
 			_avEdit.SetValue(Grid.RowProperty, 0);
+			_avEdit.Loaded += _avEdit_Loaded;
 			_avEdit.SyntaxHighlighting = HIGHLIGHTING_DEF;
 			this.KeyUp += TabContentView_KeyUp;
 			subGrid.Children.Add(_avEdit);
@@ -99,12 +100,17 @@ namespace WpfTest {
 			InitializeTextMarkerService();
 		}
 
+		private void _avEdit_Loaded(object sender, RoutedEventArgs e) {
+			_avEdit.Focus();
+		}
+
 		ITextMarkerService _textMarkerService;
 
 		void InitializeTextMarkerService() {
 			var textMarkerService = new TextMarkerService(_avEdit.Document);
 			_avEdit.TextArea.TextView.BackgroundRenderers.Add(textMarkerService);
 			_avEdit.TextArea.TextView.LineTransformers.Add(textMarkerService);
+			
 			var services = (IServiceContainer)_avEdit.Document.ServiceProvider.GetService(typeof(IServiceContainer));
 			if (services != null)
 				services.AddService(typeof(ITextMarkerService), textMarkerService);
