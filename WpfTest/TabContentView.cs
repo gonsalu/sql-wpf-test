@@ -147,16 +147,16 @@ namespace WpfTest {
 				//	RunQuery(connStr, txt);
 				//}).Start();
 
-				new Thread(delegate () {
-					Thread.Sleep(10);
-					RunQuery(connStr, txt);
-				}).Start();
-
-				//var queryTask = Task.Run(() => {
+				//new Thread(delegate () {
 				//	Thread.Sleep(10);
 				//	RunQuery(connStr, txt);
-				//}, _queryCancellationToken);
+				//}).Start();
 
+				//Task.Run(() => RunQuery(connStr, txt));
+
+				var queryTask = Task.Run(() => {
+					RunQuery(connStr, txt);
+				}, _queryCancellationToken);
 			}
 		}
 
@@ -168,7 +168,6 @@ namespace WpfTest {
 					conn.Open();
 					cmd.CommandText = queryTxt;
 					var rdr = cmd.ExecuteReader();
-					
 
 					var buffer = new List<ExpandoObject>(500);
 					do {
