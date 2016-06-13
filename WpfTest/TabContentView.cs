@@ -43,6 +43,7 @@ namespace WpfTest {
 		DockPanel _panel;
 		ConnectionStatusBar _statusBar;
 		bool _querying;
+		RowDefinition _bottomRowDef;
 
 		public TabContentView(SqlConnection conn) {
 			_conn = conn;
@@ -54,7 +55,8 @@ namespace WpfTest {
 			var subGrid = new Grid();
 			subGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 			subGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(5, GridUnitType.Pixel) });
-			subGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+			_bottomRowDef = new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) };
+            subGrid.RowDefinitions.Add(_bottomRowDef);
 
 			_avEdit = new TextEditor() {
 				FontFamily = new FontFamily("Consalas"),
@@ -142,17 +144,6 @@ namespace WpfTest {
 				var connStr = GetActiveConnectionString();
 
 				_queryCancellationToken = new CancellationToken();
-
-				//new Thread(delegate () {
-				//	RunQuery(connStr, txt);
-				//}).Start();
-
-				//new Thread(delegate () {
-				//	Thread.Sleep(10);
-				//	RunQuery(connStr, txt);
-				//}).Start();
-
-				//Task.Run(() => RunQuery(connStr, txt));
 
 				var queryTask = Task.Run(() => {
 					RunQuery(connStr, txt);
@@ -265,9 +256,11 @@ namespace WpfTest {
 
 			if (erVis == COLLAPSE_STYLE && dgVis == COLLAPSE_STYLE) {
 				_panel.Style = _splitter.Style = COLLAPSE_STYLE;
-			} else {
+				_bottomRowDef.Height = new GridLength(1, GridUnitType.Auto);
+            } else {
 				_panel.Style = _splitter.Style = VISIBLE_STYLE;
-			}
+				_bottomRowDef.Height = new GridLength(1, GridUnitType.Star);
+            }
 		}
 	}
 }
