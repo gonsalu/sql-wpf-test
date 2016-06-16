@@ -24,16 +24,13 @@ namespace WpfTest {
 	public partial class ConnectionChooser : UserControl {
 		public ConnectionChooser() {
 			InitializeComponent();
-			if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this)) {
-				//this.Background = Brushes.White;
-			}
 		}
 
 		TaskCompletionSource<SqlConnection> _validConn = new TaskCompletionSource<SqlConnection>();
 
 		public Task<SqlConnection> GetValidConnTask() => _validConn.Task;
 
-		private async void connectBtn_Click(object sender, RoutedEventArgs e) {
+		private void connectBtn_Click(object sender, RoutedEventArgs e) {
 			_connectBtn.IsEnabled = false;
 			_spinner.Visibility = Visibility.Visible;
 
@@ -43,10 +40,12 @@ namespace WpfTest {
 			connBuilder.IntegratedSecurity = true;
 			connBuilder.DataSource = serverName;
 			var connStr = connBuilder.ConnectionString;
+			//await Task.Delay(500);
 
 			Trace.WriteLine($"Trying connection \"{connStr}\"");
 
-			await Task.Run(() => {
+			Task.Run(() => {
+				Thread.Sleep(10);
 				var conn = new SqlConnection(connStr);
 				try {
 					conn.Open();

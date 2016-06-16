@@ -31,12 +31,22 @@ namespace WpfTest
 		}
 
 		void StartConnView(Task<SqlConnection> getConn) {
+
 			var conn = getConn.Result;
 
 			var dockPanel = new DockPanel();
 			var control = new MainControl(conn);
 			dockPanel.Children.Add(control);
 			this.Content = dockPanel;
+
+			_win = new ObjectFinder(conn.ConnectionString);
+			_win.Show();
+			_win._sel
+        }
+		ObjectFinder _win;
+
+		void Gon(Task<ObjectRow> task) {
+
 		}
 	}
 }

@@ -1,0 +1,22 @@
+﻿<Window x:Class="WpfTest.ObjectFinder"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfTest"		
+        mc:Ignorable="d"
+        Title="ObjectFinder" Height="300" Width="300" WindowStyle="None">
+    <Grid>
+        <Grid.RowDefinitions>
+			<RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="20" />
+        </Grid.RowDefinitions>
+        <local:SearchField Grid.Row="0" x:Name="_searchField" KeyUp="_searchField_KeyUp"/>
+        <ListBox Grid.Row="1" Name="_listBox" SelectionMode="Single" SelectionChanged="_listBox_SelectionChanged" 
+				 
+				 KeyUp="_listBox_KeyUp"
+				 >
+        </ListBox>
+    </Grid>
+</Window>

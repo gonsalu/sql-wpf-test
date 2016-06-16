@@ -52,14 +52,7 @@ namespace WpfTest {
 
 		public void ToggleLoading(bool loading) {
 			Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Normal, new Action(() => {
-				var style = loading ? VISIBLE_STYLE : COLLAPSE_STYLE;
-				_progressBar.Style = style;
-
-				//if (loading) {
-				//	_progressBar.IsIndeterminate = true;
-				//} else {
-				//	_progressBar.IsIndeterminate = false;
-				//}
+				_progressBar.Visibility = loading ? Visibility.Visible : Visibility.Collapsed;
 			}));
 		}
 	}
