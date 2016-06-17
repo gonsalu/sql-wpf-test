@@ -42,14 +42,15 @@ namespace WpfTest {
 				_listBox.Items.Clear();
 
 				for (int i = 0; i < results.Length; i++) {
-					var res = results[i];
+					var match = results[i];
 					var it = new ListBoxItem();
 					it.SetValue(IndexProp, i);
+					it.SetValue(ObjectRowProp, match.obj);
 					var tb = new TextBlock();
 					it.Content = tb;
 
-					AddParts(tb, res, true);
-					AddParts(tb, res, false);
+					AddParts(tb, match, true);
+					AddParts(tb, match, false);
 
 					_listBox.Items.Add(it);
 				}
@@ -87,6 +88,22 @@ namespace WpfTest {
 						// A+ framework confirmed
 					}
 				}));
+			}
+		}
+
+
+
+		public Task<ObjectRow> SelectObject {
+			get { return _selectObj.Task; }
+		}
+
+		void _listBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e) {
+			if (e.Key == System.Windows.Input.Key.Up) {
+				var item = _listBox.SelectedItem as ListBoxItem;
+				if (item == null || (int)item.GetValue(IndexProp) == 0) {
+					_listBox.SelectedItem = null;
+					_searchField._textBox.Focus();
+				}
 			} else if (e.Key == System.Windows.Input.Key.Enter) {
 				var sel = _listBox.SelectedItem;
 				if (sel != null) {
@@ -95,21 +112,6 @@ namespace WpfTest {
 					if (or != null) {
 						_selectObj.TrySetResult((ObjectRow)or);
 					}
-				}
-			}
-		}
-
-		public Task<ObjectRow> SelectObject {
-			get { return _selectObj.Task; }
-		}
-
-		void _listBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e) {
-			if (e.Key == System.Windows.Input.Key.Up) {
-				var item = (ListBoxItem)_listBox.SelectedItem;
-				var idx = (int)item.GetValue(IndexProp);
-				if (idx == 0) {
-					_listBox.SelectedItem = null;
-					_searchField._textBox.Focus();
 				}
 			}
 		}
